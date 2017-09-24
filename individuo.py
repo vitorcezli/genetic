@@ -27,17 +27,17 @@ class individuo:
 		return profundidade_maxima
 
 
-	def informacoes_arvore(self, arvore, interior):
+	def informacoes_arvore(self, arvore, interior, indice_primeiro):
 		"Retorna as informacoes referentes a arvore"
 		return [[arvore, interior, self.profundidade(arvore), \
-			self.quantidade_terminais(arvore)]]
+			self.quantidade_terminais(arvore), indice_primeiro]]
 
 
-	def subarvores(self, arvore, interior):
+	def subarvores(self, arvore, interior, indice_primeiro):
 		"Retorna todas as subarvores possiveis junto de informacoes"
 		# quando está em um nó final retorna as informações
 		if "[" not in arvore[1 : len(arvore) - 1]:
-			return self.informacoes_arvore(arvore, interior)
+			return self.informacoes_arvore(arvore, interior, indice_primeiro)
 
 		# armazena as informações das sub-árvores
 		lista_subarvores = []
@@ -59,11 +59,12 @@ class individuo:
 				if profundidade == 0:
 					lista_subarvores += \
 						self.subarvores(arvore[indice_inicial : indice + 1], \
-							interior + 1)
+							interior + 1, indice_primeiro + indice_inicial)
 					indice_inicial = -1
 
 		# adiciona a própria árvore na lista
-		lista_subarvores += self.informacoes_arvore(arvore, interior)
+		lista_subarvores += \
+			self.informacoes_arvore(arvore, interior, indice_primeiro)
 		return lista_subarvores
 
 
@@ -127,20 +128,27 @@ class individuo:
 	def cruzamento(self, maximo, arvore1, arvore2):
 		"Realiza a cruzamento entre dois individuos, retornando dois filhos"
 		# genótipos dos dois indivíduos
-		possibilidades1 = self.subarvores(arvore1, 1)
-		possibilidades2 = self.subarvores(arvore2, 1)
+		possibilidades1 = self.subarvores(arvore1, 1, 0)
+		possibilidades2 = self.subarvores(arvore2, 1, 0)
 
 		# armazena os genótipos que podem ser trocados
 		lista_troca = []
 		for lista1 in possibilidades1:
 			for lista2 in possibilidades2:
 				if lista1[3] == lista2[3] and lista1[1] + lista2[2] <= maximo:
-					lista_troca.append([lista1[0], lista2[0]])
+					lista_troca.append([[lista1[0], lista1[4]], [lista2[0], lista2[4]]])
 
 		# seleciona os genótipos que serão trocados
 		troca = lista_troca[random.randint(0, len(lista_troca) - 1)]
+		print(troca)
 
 		# realiza a troca de informação genética
+		filho1 = arvore1[0 : troca[0][1]] + troca[1][0] + \
+			arvore1[troca[0][1] + len(troca[0][0]) :]
+		filho2 = arvore2[0 : troca[1][1]] + troca[0][0] + \
+			arvore2[troca[1][1] + len(troca[1][0]) :]
+		print(filho1)
+		print(filho2)
 
 
 
@@ -152,4 +160,4 @@ ind = individuo()
 #print(ind.profundidade("[log[??,sum[??,??]]]"))
 #print(ind.subarvores("[log[sum[23,??],sum[??,??]]]", 1))
 #print(ind.mutacao("[log[sum[23,??],sum[??,44]]]", ['mul', 'exp', 'sin']))
-print(ind.cruzamento(4, "[log[sum[23,??],sum[??,44]]]", "[log[sum[23,??],sum[??,44]]]"))
+print(ind.cruzamento(6, "[exp[mul[0.35,??],sum[??,44]]]", "[log[sum[23,??],sum[??,44]]]"))
