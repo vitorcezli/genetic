@@ -7,6 +7,11 @@ import random
 class individuo:
 
 
+	def geracao_individuos(self, funcoes):
+		"Gera um novo individuo a partir das funcoes"
+		pass
+
+
 	def quantidade_terminais(self, arvore):
 		"Retorna a quantidade de terminais da arvore"
 		return arvore.count("??")
@@ -68,6 +73,32 @@ class individuo:
 		return lista_subarvores
 
 
+	def cruzamento(self, maximo, arvore1, arvore2):
+		"Realiza a cruzamento entre dois individuos, retornando dois filhos"
+		# genótipos dos dois indivíduos
+		possibilidades1 = self.subarvores(arvore1, 1, 0)
+		possibilidades2 = self.subarvores(arvore2, 1, 0)
+
+		# armazena os genótipos que podem ser trocados
+		lista_troca = []
+		for lista1 in possibilidades1:
+			for lista2 in possibilidades2:
+				if lista1[3] == lista2[3] and lista1[1] + lista2[2] <= maximo:
+					lista_troca.append([[lista1[0], lista1[4]], [lista2[0], lista2[4]]])
+
+		# seleciona os genótipos que serão trocados
+		troca = lista_troca[random.randint(0, len(lista_troca) - 1)]
+
+		# realiza a troca de informação genética
+		filho1 = arvore1[0 : troca[0][1]] + troca[1][0] + \
+			arvore1[troca[0][1] + len(troca[0][0]) :]
+		filho2 = arvore2[0 : troca[1][1]] + troca[0][0] + \
+			arvore2[troca[1][1] + len(troca[1][0]) :]
+
+		# retorna os indivíduos
+		return [filho1, filho2]
+
+
 	def mutacao_funcao(self, arvore, substitutos):
 		"Realiza o processo de mutacao em uma funcao do individuo"
 		padrao = re.compile("[a-zA-Z]+")
@@ -123,35 +154,6 @@ class individuo:
 		# caso contrário substitui uma função
 		else:
 			return self.mutacao_funcao(arvore, substitutos)
-
-
-	def cruzamento(self, maximo, arvore1, arvore2):
-		"Realiza a cruzamento entre dois individuos, retornando dois filhos"
-		# genótipos dos dois indivíduos
-		possibilidades1 = self.subarvores(arvore1, 1, 0)
-		possibilidades2 = self.subarvores(arvore2, 1, 0)
-
-		# armazena os genótipos que podem ser trocados
-		lista_troca = []
-		for lista1 in possibilidades1:
-			for lista2 in possibilidades2:
-				if lista1[3] == lista2[3] and lista1[1] + lista2[2] <= maximo:
-					lista_troca.append([[lista1[0], lista1[4]], [lista2[0], lista2[4]]])
-
-		# seleciona os genótipos que serão trocados
-		troca = lista_troca[random.randint(0, len(lista_troca) - 1)]
-		print(troca)
-
-		# realiza a troca de informação genética
-		filho1 = arvore1[0 : troca[0][1]] + troca[1][0] + \
-			arvore1[troca[0][1] + len(troca[0][0]) :]
-		filho2 = arvore2[0 : troca[1][1]] + troca[0][0] + \
-			arvore2[troca[1][1] + len(troca[1][0]) :]
-		print(filho1)
-		print(filho2)
-
-
-
 
 
 
