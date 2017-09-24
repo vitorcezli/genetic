@@ -27,17 +27,17 @@ class individuo:
 		return profundidade_maxima
 
 
-	def informacoes_arvore(self, arvore):
+	def informacoes_arvore(self, arvore, interior):
 		"Retorna as informacoes referentes a arvore"
-		return [arvore, self.quantidade_terminais(arvore), \
-			self.profundidade(arvore)]
+		return [[arvore, interior, self.profundidade(arvore), \
+			self.quantidade_terminais(arvore)]]
 
 
-	def subarvores(self, arvore):
+	def subarvores(self, arvore, interior):
 		"Retorna todas as subarvores possiveis junto de informacoes"
 		# quando está em um nó final retorna as informações
 		if "[" not in arvore[1 : len(arvore) - 1]:
-			return self.informacoes_arvore(arvore)
+			return self.informacoes_arvore(arvore, interior)
 
 		# armazena as informações das sub-árvores
 		lista_subarvores = []
@@ -58,11 +58,12 @@ class individuo:
 				# fim da sub-árvore encontrada
 				if profundidade == 0:
 					lista_subarvores += \
-						self.subarvores(arvore[indice_inicial : indice + 1])
+						self.subarvores(arvore[indice_inicial : indice + 1], \
+							interior + 1)
 					indice_inicial = -1
 
 		# adiciona a própria árvore na lista
-		lista_subarvores += self.informacoes_arvore(arvore)
+		lista_subarvores += self.informacoes_arvore(arvore, interior)
 		return lista_subarvores
 
 
@@ -123,12 +124,32 @@ class individuo:
 			return self.mutacao_funcao(arvore, substitutos)
 
 
+	def cruzamento(self, maximo, arvore1, arvore2):
+		"Realiza a cruzamento entre dois individuos, retornando dois filhos"
+		# genótipos dos dois indivíduos
+		possibilidades1 = self.subarvores(arvore1, 1)
+		possibilidades2 = self.subarvores(arvore2, 1)
+
+		# armazena os genótipos que podem ser trocados
+		lista_troca = []
+		for lista1 in possibilidades1:
+			for lista2 in possibilidades2:
+				if lista1[3] == lista2[3] and lista1[1] + lista2[2] <= maximo:
+					lista_troca.append([lista1[0], lista2[0]])
+
+		# seleciona os genótipos que serão trocados
+		troca = lista_troca[random.randint(0, len(lista_troca) - 1)]
+
+		# realiza a troca de informação genética
+
+
 
 
 
 
 ind = individuo()
-print(ind.quantidade_terminais("[log[??,sum[??,??]]]"))
-print(ind.profundidade("[log[??,sum[??,??]]]"))
-print(ind.subarvores("[log[sum[23,??],sum[??,??]]]"))
-print(ind.mutacao("[log[sum[23,??],sum[??,44]]]", ['mul', 'exp', 'sin']))
+#print(ind.quantidade_terminais("[log[??,sum[??,??]]]"))
+#print(ind.profundidade("[log[??,sum[??,??]]]"))
+#print(ind.subarvores("[log[sum[23,??],sum[??,??]]]", 1))
+#print(ind.mutacao("[log[sum[23,??],sum[??,44]]]", ['mul', 'exp', 'sin']))
+print(ind.cruzamento(4, "[log[sum[23,??],sum[??,44]]]", "[log[sum[23,??],sum[??,44]]]"))
