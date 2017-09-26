@@ -12,6 +12,48 @@ class individuo:
 		pass
 
 
+	def calcula(self, arvore, dados):
+		"Realiza o calculo da funcao especificada pela arvore com os dados"
+		arvore_valores = self.substituicao_argumentos_valores(arvore, dados)
+		self.calcula_aux(arvore_valores)
+
+
+	def calcula_aux(self, arvore):
+		"Funcao auxiliar a calcula"
+		# retorna uma lista com os números caso chegue ao final da árvore
+		if re.search("[a-zA-Z]+", arvore) == None:
+			lista_numeros = []
+			padrao = re.compile("[\d\.]+")
+			iterador = padrao.finditer(arvore)
+
+			# pega cada número encontrado
+			for ocorrencia in iterador:
+				regiao = ocorrencia.span()
+				numero = arvore[regiao[0] : regiao[1]]
+				lista_numeros.append(float(numero))
+			return lista_numeros
+
+
+	def substitui_substring(self, string, regiao, substituicao):
+		"Substitui a substring na regiao especificada"
+		return string[: regiao[0]] + substituicao + string[regiao[1] :]
+
+
+	def substituicao_argumentos_valores(self, arvore, valores):
+		"Substitui os argumentos da arvore pelos valores a serem calculados"
+		padrao = re.compile("\?\?")
+		iterador = padrao.finditer(arvore)
+
+		# substitui cada argumento pelo seu valor
+		indice = 0
+		for ocorrencia in iterador:
+			regiao = ocorrencia.span()
+			arvore = self.substitui_substring(arvore, regiao, str(valores[indice]))
+			indice += 1
+
+		return arvore
+
+
 	def quantidade_terminais(self, arvore):
 		"Retorna a quantidade de terminais da arvore"
 		return arvore.count("??")
@@ -163,3 +205,5 @@ ind = individuo()
 #print(ind.subarvores("[log[sum[23,??],sum[??,??]]]", 1))
 #print(ind.mutacao("[log[sum[23,??],sum[??,44]]]", ['mul', 'exp', 'sin']))
 print(ind.cruzamento(6, "[exp[mul[0.35,??],sum[??,44]]]", "[log[sum[23,??],sum[??,44]]]"))
+print(ind.substituicao_argumentos_valores("[exp[mul[0.35,??],sum[??,44]]]", [13, 43]))
+print(ind.calcula_aux("[1.234,44]"))
