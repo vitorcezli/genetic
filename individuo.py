@@ -7,6 +7,28 @@ import random
 class individuo:
 
 
+	def gera_lista(self, funcoes, continuacao):
+		"Gera uma lista com uma probabilidade de gerar o simbolo de continuacao"
+		funcao = funcoes[random.randint(0, len(funcoes) - 1)]
+
+		# gera a lista com a possibilidade de gerar o símbolo de geração
+		nova_lista = funcao[0] + "["
+		probabilidade_indice = continuacao / funcao[1]
+		for index in range(funcao[1]):
+
+			# acrescenta o símbolo de continuação
+			if random.random() < probabilidade_indice:
+				nova_lista += "!!"
+			else:
+				nova_lista += str(random.random())
+			if index != funcao[1] - 1:
+				nova_lista += ","
+		nova_lista += "]"
+
+		# retorna a lista gerada
+		return nova_lista
+
+
 	def geracao_individuos(self, funcoes):
 		"Gera um novo individuo a partir das funcoes"
 		pass
@@ -207,3 +229,4 @@ ind = individuo()
 print(ind.cruzamento(6, "[exp[mul[0.35,??],sum[??,44]]]", "[log[sum[23,??],sum[??,44]]]"))
 print(ind.substituicao_argumentos_valores("[exp[mul[0.35,??],sum[??,44]]]", [13, 43]))
 print(ind.calcula_aux("[1.234,44]"))
+print(ind.gera_lista([['log', 2], ['sum', 3]], 0.8))
