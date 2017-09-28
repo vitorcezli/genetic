@@ -40,6 +40,43 @@ class individuo:
 		self.calcula_aux(arvore_valores)
 
 
+	def quebra_funcao_argumentos(self, arvore):
+		"Separa a funcao dos argumentos retornando uma lista"
+		lista_retorno = []
+		lista_arvore = arvore[1 : len(arvore) - 1]
+		print(lista_arvore)
+
+		# define o tipo de função
+		tipo_funcao = ""
+		index_final = 0
+		for index in range(len(lista_arvore)):
+			if lista_arvore[index] != '[':
+				tipo_funcao += lista_arvore[index]
+			else:
+				index_final = index
+				break
+		lista_retorno.append(tipo_funcao)
+
+		# adiciona cada sublista na lista de retorno
+		dentro = 0
+		nova_lista = ""
+		for index in range(index_final + 1, len(lista_arvore)):
+			if lista_arvore[index] == '[':
+				dentro += 1
+				nova_lista += lista_arvore[index]
+			elif lista_arvore[index] == ']':
+				dentro -= 1
+				nova_lista += ']'
+
+				if dentro == 0:
+					lista_retorno.append(nova_lista)
+			elif lista_arvore[index] == ',' and dentro == 0:
+				nova_lista = ""
+			else:
+				nova_lista += lista_arvore[index]
+		return lista_retorno
+
+
 	def calcula_aux(self, arvore):
 		"Funcao auxiliar a calcula"
 		# retorna uma lista com os números caso chegue ao final da árvore
@@ -230,3 +267,4 @@ print(ind.cruzamento(6, "[exp[mul[0.35,??],sum[??,44]]]", "[log[sum[23,??],sum[?
 print(ind.substituicao_argumentos_valores("[exp[mul[0.35,??],sum[??,44]]]", [13, 43]))
 print(ind.calcula_aux("[1.234,44]"))
 print(ind.gera_lista([['log', 2], ['sum', 3]], 0.8))
+print(ind.quebra_funcao_argumentos("[exp[mul[exp[0.35],??],sum[??,44]]]"))
