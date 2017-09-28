@@ -74,7 +74,7 @@ class individuo:
 	def calcula(self, arvore, dados):
 		"Realiza o calculo da funcao especificada pela arvore com os dados"
 		arvore_valores = self.substituicao_argumentos_valores(arvore, dados)
-		return self.calcula_aux(arvore_valores)
+		return self.calcula_aux(arvore_valores)[0]
 
 
 	def calcula_aux(self, arvore):
@@ -117,16 +117,8 @@ class individuo:
 
 	def substituicao_argumentos_valores(self, arvore, valores):
 		"Substitui os argumentos da arvore pelos valores a serem calculados"
-		padrao = re.compile("\?\?")
-		iterador = padrao.finditer(arvore)
-
-		# substitui cada argumento pelo seu valor
-		indice = 0
-		for ocorrencia in iterador:
-			regiao = ocorrencia.span()
-			arvore = self.substitui_substring(arvore, regiao, str(valores[indice]))
-			indice += 1
-
+		for valor in valores:
+			arvore = arvore.replace("??", str(valor), 1)
 		return arvore
 
 
@@ -284,5 +276,5 @@ print(ind.cruzamento(6, "[exp[mul[0.35,??],sum[??,44]]]", "[log[sum[23,??],sum[?
 print(ind.substituicao_argumentos_valores("[exp[mul[0.35,??],sum[??,44]]]", [13, 43]))
 print(ind.calcula_aux("[1.234,44]"))
 print(ind.gera_lista([['log', 2], ['sum', 3]], 0.8))
-print(ind.quebra_funcao_argumentos("[sum[3044,mul[34,35]]]"))
-print(ind.calcula("[sum[mul[??,10],??]]", [30, 15]))
+print(ind.quebra_funcao_argumentos("[mul[3.0,10]]"))
+print(ind.calcula("[sum[mul[??,10],??]]", [0.3, 1.5]))
