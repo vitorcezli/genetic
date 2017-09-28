@@ -2,6 +2,7 @@
 from __future__ import division
 import re
 import random
+import math
 
 
 class individuo:
@@ -34,17 +35,10 @@ class individuo:
 		pass
 
 
-	def calcula(self, arvore, dados):
-		"Realiza o calculo da funcao especificada pela arvore com os dados"
-		arvore_valores = self.substituicao_argumentos_valores(arvore, dados)
-		self.calcula_aux(arvore_valores)
-
-
 	def quebra_funcao_argumentos(self, arvore):
 		"Separa a funcao dos argumentos retornando uma lista"
 		lista_retorno = []
 		lista_arvore = arvore[1 : len(arvore) - 1]
-		print(lista_arvore)
 
 		# define o tipo de função
 		tipo_funcao = ""
@@ -60,21 +54,27 @@ class individuo:
 		# adiciona cada sublista na lista de retorno
 		dentro = 0
 		nova_lista = ""
-		for index in range(index_final + 1, len(lista_arvore)):
+		for index in range(index_final + 1, len(lista_arvore) - 1):
 			if lista_arvore[index] == '[':
 				dentro += 1
 				nova_lista += lista_arvore[index]
 			elif lista_arvore[index] == ']':
 				dentro -= 1
 				nova_lista += ']'
-
-				if dentro == 0:
-					lista_retorno.append(nova_lista)
 			elif lista_arvore[index] == ',' and dentro == 0:
-				nova_lista = ""
+				if nova_lista != "":
+					lista_retorno.append("[" + nova_lista + "]")
+					nova_lista = ""
 			else:
 				nova_lista += lista_arvore[index]
+		lista_retorno.append("[" + nova_lista + "]")
 		return lista_retorno
+
+
+	def calcula(self, arvore, dados):
+		"Realiza o calculo da funcao especificada pela arvore com os dados"
+		arvore_valores = self.substituicao_argumentos_valores(arvore, dados)
+		return self.calcula_aux(arvore_valores)
 
 
 	def calcula_aux(self, arvore):
@@ -91,6 +91,23 @@ class individuo:
 				numero = arvore[regiao[0] : regiao[1]]
 				lista_numeros.append(float(numero))
 			return lista_numeros
+
+		# adquire os argumentos e a função a ser executada
+		funcao_argumentos = self.quebra_funcao_argumentos(arvore)
+		lista_argumentos = []
+		for argumento in funcao_argumentos[1 : ]:
+			valor = self.calcula_aux(argumento)
+			lista_argumentos.append(valor[0])
+
+		# executa a função e retorna o valor
+		if funcao_argumentos[0] == 'exp':
+			return [math.exp(lista_argumentos[0])]
+		elif funcao_argumentos[0] == 'sum':
+			return [lista_argumentos[0] + lista_argumentos[1]]
+		elif funcao_argumentos[0] == 'mul':
+			return [lista_argumentos[0] * lista_argumentos[1]]
+		else:
+			return [0]
 
 
 	def substitui_substring(self, string, regiao, substituicao):
@@ -267,4 +284,5 @@ print(ind.cruzamento(6, "[exp[mul[0.35,??],sum[??,44]]]", "[log[sum[23,??],sum[?
 print(ind.substituicao_argumentos_valores("[exp[mul[0.35,??],sum[??,44]]]", [13, 43]))
 print(ind.calcula_aux("[1.234,44]"))
 print(ind.gera_lista([['log', 2], ['sum', 3]], 0.8))
-print(ind.quebra_funcao_argumentos("[exp[mul[exp[0.35],??],sum[??,44]]]"))
+print(ind.quebra_funcao_argumentos("[sum[3044,mul[34,35]]]"))
+print(ind.calcula("[sum[mul[??,10],??]]", [30, 15]))
