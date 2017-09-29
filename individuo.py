@@ -8,6 +8,11 @@ import math
 class individuo:
 
 
+	def __init__(self, profundidade_maxima):
+		"Define as caracteristicas do individuo"
+		self.profundidade_maxima = profundidade_maxima
+
+
 	def gera_lista(self, funcoes, continuacao):
 		"Gera uma lista com uma probabilidade de gerar o simbolo de continuacao"
 		funcao = funcoes[random.randint(0, len(funcoes) - 1)]
@@ -30,9 +35,58 @@ class individuo:
 		return nova_lista
 
 
-	def geracao_individuos(self, funcoes):
+	def gera_individuo(self, funcoes, numero_argumento):
 		"Gera um novo individuo a partir das funcoes"
-		pass
+		# variáveis a serem utilizadas na geração do indivíduo
+		quantidade_terminais = 0
+		individuo_gerado = ""
+		padrao_terminal = re.compile("[\d\.]+")
+
+		# gera indivíduos até ser possível selecionar a quantidade certa
+		# de terminais que serão substituídos pelo indicador de argumento
+		while quantidade_terminais < numero_argumento:
+			individuo_gerado = "[" + self.gera_individuo_aux(funcoes, \
+				self.profundidade_maxima) + "]"
+			quantidade_terminais = len(padrao_terminal.findall(individuo_gerado))
+
+		# substitui os valores pelo indicador de argumento
+		for quantidade in range(numero_argumento):
+			individuo_gerado = \
+				self.substitui_numero_por_string(individuo_gerado, "??")
+
+		# retorna o indivíduo final
+		return individuo_gerado
+
+
+
+	def gera_individuo_aux(self, funcoes, maximo):
+		"Funcao auxiliar a gera individuo"
+		if maximo == 1:
+			return self.gera_lista(funcoes, 0)
+		else:
+			nova_lista = self.gera_lista(funcoes, 1)
+			while "!!" in nova_lista:
+				nova_lista = nova_lista.replace("!!", \
+					self.gera_individuo_aux(funcoes, maximo - 1), 1)
+			return nova_lista
+
+
+	def substitui_numero_por_string(self, arvore, string):
+		"Realiza o processo de mutaao em um valor do individuo"
+		padrao = re.compile("[\d\.]+")
+		iterador = padrao.finditer(arvore)
+
+		# armazena cada índice de ocorrência
+		indices = []
+		for ocorrencia in iterador:
+			indices.append(ocorrencia.span())
+		
+		# seleciona o lugar que será substituído e o que será colocado no lugar
+		substituicao = indices[random.randint(0, len(indices) - 1)]
+
+		# realiza a substituição
+		nova = arvore[0 : substituicao[0]] + string + arvore[substituicao[1] :]
+		return nova
 
 
 	def quebra_funcao_argumentos(self, arvore):
@@ -231,28 +285,15 @@ class individuo:
 
 	def mutacao_numero(self, arvore):
 		"Realiza o processo de mutaao em um valor do individuo"
-		padrao = re.compile("\d+")
-		iterador = padrao.finditer(arvore)
-
-		# armazena cada índice de ocorrência
-		indices = []
-		for ocorrencia in iterador:
-			indices.append(ocorrencia.span())
-		
-		# seleciona o lugar que será substituído e o que será colocado no lugar
-		substituicao = indices[random.randint(0, len(indices) - 1)]
-
-		# realiza a substituição
-		nova = arvore[0 : substituicao[0]] + str(2 * random.random() - 1) + \
-			arvore[substituicao[1] :]
-		return nova
+		return self.substitui_numero_por_string(arvore, \
+			str(2 * random.random() - 1))
 
 
 	def mutacao(self, arvore, substitutos):
 		"Realiza mutacao no individuo"
 		# a probabilidade de substituir um número ou uma função é proporcional
 		# à sua quantidade
-		padrao_valor = re.compile("\d+")
+		padrao_valor = re.compile("[\d\.]+")
 		padrao_funcao = re.compile("\w+")
 		quantidade_valor = len(padrao_valor.findall(arvore))
 		quantidade_funcao = len(padrao_funcao.findall(arvore))
@@ -267,7 +308,7 @@ class individuo:
 
 
 
-ind = individuo()
+ind = individuo(7)
 #print(ind.quantidade_terminais("[log[??,sum[??,??]]]"))
 #print(ind.profundidade("[log[??,sum[??,??]]]"))
 #print(ind.subarvores("[log[sum[23,??],sum[??,??]]]", 1))
@@ -278,3 +319,4 @@ print(ind.calcula_aux("[1.234,44]"))
 print(ind.gera_lista([['log', 2], ['sum', 3]], 0.8))
 print(ind.quebra_funcao_argumentos("[mul[3.0,10]]"))
 print(ind.calcula("[sum[mul[??,10],??]]", [0.3, 1.5]))
+print(ind.gera_individuo([['log', 2], ['sum', 2]], 2))
