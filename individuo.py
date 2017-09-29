@@ -46,7 +46,8 @@ class individuo:
 		# de terminais que serão substituídos pelo indicador de argumento
 		while quantidade_terminais < numero_argumento:
 			individuo_gerado = "[" + self.gera_individuo_aux(funcoes, \
-				self.profundidade_maxima) + "]"
+				self.profundidade_maxima, 1 / (self.profundidade_maxima)) + \
+				"]"
 			quantidade_terminais = len(padrao_terminal.findall(individuo_gerado))
 
 		# substitui os valores pelo indicador de argumento
@@ -58,21 +59,22 @@ class individuo:
 		return individuo_gerado
 
 
-
-	def gera_individuo_aux(self, funcoes, maximo):
+	def gera_individuo_aux(self, funcoes, maximo, valor_x):
 		"Funcao auxiliar a gera individuo"
 		if maximo == 1:
 			return self.gera_lista(funcoes, 0)
 		else:
-			nova_lista = self.gera_lista(funcoes, 1)
+			probabilidade_ativar = valor_x / \
+				(1 - (self.profundidade_maxima - maximo) * valor_x)
+			nova_lista = self.gera_lista(funcoes, 1 - probabilidade_ativar)
 			while "!!" in nova_lista:
 				nova_lista = nova_lista.replace("!!", \
-					self.gera_individuo_aux(funcoes, maximo - 1), 1)
+					self.gera_individuo_aux(funcoes, maximo - 1, valor_x), 1)
 			return nova_lista
 
 
 	def substitui_numero_por_string(self, arvore, string):
-		"Realiza o processo de mutaao em um valor do individuo"
+		"Realiza o processo de mutacao em um valor do individuo"
 		padrao = re.compile("[\d\.]+")
 		iterador = padrao.finditer(arvore)
 
@@ -308,12 +310,12 @@ class individuo:
 
 
 
-ind = individuo(7)
+ind = individuo(3)
 #print(ind.quantidade_terminais("[log[??,sum[??,??]]]"))
 #print(ind.profundidade("[log[??,sum[??,??]]]"))
 #print(ind.subarvores("[log[sum[23,??],sum[??,??]]]", 1))
 #print(ind.mutacao("[log[sum[23,??],sum[??,44]]]", ['mul', 'exp', 'sin']))
-print(ind.cruzamento(6, "[exp[mul[0.35,??],sum[??,44]]]", "[log[sum[23,??],sum[??,44]]]"))
+print(ind.cruzamento(3, "[exp[mul[0.35,??],sum[??,44]]]", "[log[sum[23,??],sum[??,44]]]"))
 print(ind.substituicao_argumentos_valores("[exp[mul[0.35,??],sum[??,44]]]", [13, 43]))
 print(ind.calcula_aux("[1.234,44]"))
 print(ind.gera_lista([['log', 2], ['sum', 3]], 0.8))
